@@ -1,0 +1,53 @@
+package com.kyc.kyc_verification_system.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.http.MediaType;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.web.reactive.function.client.WebClient;
+
+import reactor.core.publisher.Flux;
+
+@RestController
+@RequestMapping("/kyc")
+public class FaceDetectionController {
+
+    @Autowired
+    private WebClient webClient;
+
+    @GetMapping(
+            value = "/video-feed/{sessionId}",
+            produces = "multipart/x-mixed-replace; boundary=frame"
+    )
+    public Flux<byte[]> streamVideo(
+            @PathVariable String sessionId
+    ) {
+
+        return webClient.get()
+
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/video_feed")
+                                .queryParam(
+                                        "sessionId",
+                                        sessionId
+                                )
+                                .build()
+                )
+
+                .accept(
+                        MediaType.parseMediaType(
+                                "multipart/x-mixed-replace; boundary=frame"
+                        )
+                )
+
+                .retrieve()
+
+                .bodyToFlux(byte[].class);
+    }
+}s

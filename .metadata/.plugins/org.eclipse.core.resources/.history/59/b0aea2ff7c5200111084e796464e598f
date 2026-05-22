@@ -1,0 +1,5 @@
+package com.kyc.kyc_verification_system.dto;
+
+public class UploadResponse {
+
+}

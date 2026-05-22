@@ -1,0 +1,11 @@
+spring.application.name=kyc-verification-system
+spring.datasource.url=jdbc:postgresql://localhost:5432/kyc_db
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_PASSWORD
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+spring.servlet.multipart.max-file-size=500KB
+spring.servlet.multipart.max-request-size=500KB
