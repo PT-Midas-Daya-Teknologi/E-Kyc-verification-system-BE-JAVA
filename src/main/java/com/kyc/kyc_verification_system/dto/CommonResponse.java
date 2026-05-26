@@ -17,9 +17,11 @@ public class CommonResponse<T> {
 
     private boolean success;
 
-    private String responseTime;
+    private String timestamp;
 
     private List<ErrorResponse> errors;
 
     private T body;
+    
+    
 }

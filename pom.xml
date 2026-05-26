@@ -28,6 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		        <aws.sdk.version>2.25.40</aws.sdk.version>
+
 	</properties>
 	<dependencies>
 		<dependency>
@@ -38,6 +40,21 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+
+  <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>rekognition</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+        
+         <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sts</artifactId>
+            <version>${aws.sdk.version}</version>
+        </dependency>
+        
+        
 
 <dependency>
     <groupId>io.jsonwebtoken</groupId>

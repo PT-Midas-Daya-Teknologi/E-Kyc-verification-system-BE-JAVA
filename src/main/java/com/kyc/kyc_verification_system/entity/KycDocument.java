@@ -27,7 +27,9 @@ public class KycDocument {
     private String fileName;
 
     private String fileType;
-
+    
+    private String username;
+    
     @Column(columnDefinition = "TEXT")
     private String fileData;
 

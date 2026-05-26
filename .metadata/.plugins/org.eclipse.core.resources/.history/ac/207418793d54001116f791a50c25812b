@@ -1,5 +1,0 @@
-package com.kyc.kyc_verification_system.controller;
-
-public class FaceDetectionController {
-
-}

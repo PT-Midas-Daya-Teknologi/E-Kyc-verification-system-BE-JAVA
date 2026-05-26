@@ -2,6 +2,8 @@
 <section name="Workbench">
 	<section name="MavenProjectImportWizardPage">
 		<list key="rootDirectory">
+			<item value="D:\KYC-Verification-System-POC\src"/>
+			<item value="D:\KYC-Verification-System-POC"/>
 			<item value="D:\KYC-Verification-System-POC\kyc-verification-system"/>
 		</list>
 		<list key="projectNameTemplate">

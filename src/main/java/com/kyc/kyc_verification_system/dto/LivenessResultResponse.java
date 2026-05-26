@@ -5,21 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ErrorResponse {
-
-    private String code;
-
-    private int status;
-
-    private String error;
-
+@NoArgsConstructor
+public class LivenessResultResponse {
+    private String sessionId;
+    private String status;
+    private Double confidence;
+    private Boolean isLive;
     private String message;
-
-    private LocalDateTime timestamp;
 }
