@@ -70,7 +70,7 @@ public class KycService {
         session.setVideoId(null);
 
         session.setAttempts("[]");
-        
+
         session.setSessionExpiry(expiresAt);
 
         session.setIsActive(true);
@@ -155,7 +155,13 @@ public class KycService {
                 new UserDocument();
 
         document.setSessionId(sessionId.toString());
- 
+
+        document.setType(documentType);
+
+        document.setContent(base64File);
+
+        document.setOcrData(ocrResponse);
+
         document.setCreatedAt(LocalDateTime.now());
 
         document.setCreatedBy("SYSTEM");

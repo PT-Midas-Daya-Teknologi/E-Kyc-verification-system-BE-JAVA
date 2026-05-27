@@ -1,0 +1,16 @@
+ALTER TABLE user_document
+DROP COLUMN IF EXISTS document_type,
+DROP COLUMN IF EXISTS file_name,
+DROP COLUMN IF EXISTS file_type,
+DROP COLUMN IF EXISTS file_data,
+DROP COLUMN IF EXISTS status,
+DROP COLUMN IF EXISTS ocr_response;
+
+ALTER TABLE user_document
+ADD COLUMN IF NOT EXISTS type VARCHAR(255);
+
+ALTER TABLE user_document
+ADD COLUMN IF NOT EXISTS content TEXT;
+
+ALTER TABLE user_document
+ADD COLUMN IF NOT EXISTS ocr_data TEXT;
