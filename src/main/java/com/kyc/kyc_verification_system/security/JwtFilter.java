@@ -22,15 +22,16 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
 
     public JwtFilter(JwtUtil jwtUtil) {
+
         this.jwtUtil = jwtUtil;
     }
 
     @Override
     protected boolean shouldNotFilter(
-            HttpServletRequest request
-    ) {
+            HttpServletRequest request) {
 
-        String path = request.getServletPath();
+        String path =
+                request.getServletPath();
 
         return path.equals("/kyc/initiate");
     }
@@ -56,7 +57,8 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null
                 && authHeader.startsWith("Bearer ")) {
 
-            token = authHeader.substring(7);
+            token =
+                    authHeader.substring(7);
 
             try {
 
@@ -77,7 +79,8 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if (sessionId != null
-                && SecurityContextHolder.getContext()
+                && SecurityContextHolder
+                .getContext()
                 .getAuthentication() == null) {
 
             if (jwtUtil.validateToken(token)) {
@@ -99,11 +102,20 @@ public class JwtFilter extends OncePerRequestFilter {
                                 .buildDetails(request)
                 );
 
-                SecurityContextHolder.getContext()
+                SecurityContextHolder
+                        .getContext()
                         .setAuthentication(authToken);
+
+                request.setAttribute(
+                        "sessionId",
+                        sessionId
+                );
             }
         }
 
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(
+                request,
+                response
+        );
     }
 }

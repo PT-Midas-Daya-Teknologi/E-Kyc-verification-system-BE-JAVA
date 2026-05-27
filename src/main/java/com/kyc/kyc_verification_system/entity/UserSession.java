@@ -2,9 +2,12 @@ package com.kyc.kyc_verification_system.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -16,17 +19,17 @@ import org.hibernate.type.SqlTypes;
 public class UserSession {
 
     @Id
-    private String id;
+    private UUID id;
 
-    private Long userId;
+    private Long  userId;
 
-    private Long documentId;
+    private UUID documentId;
 
-    private Long videoId;
+    private UUID videoId;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json")
-    private List<Map<String, Object>> attempts;
+    private String attempts;
 
     private LocalDateTime sessionExpiry;
 

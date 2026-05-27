@@ -17,37 +17,49 @@ public class JwtUtil {
             "mysecretkeymysecretkeymysecretkey12";
 
     private static final Key KEY =
-            Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+            Keys.hmacShaKeyFor(
+                    SECRET_KEY.getBytes()
+            );
 
     private static final long EXPIRATION_TIME =
             10 * 60 * 1000;
 
-    public String generateToken(String sessionId) {
+    public String generateToken(
+            String sessionId) {
 
         return Jwts.builder()
                 .setSubject(sessionId)
                 .setIssuedAt(new Date())
                 .setExpiration(
-                        new Date(System.currentTimeMillis() + EXPIRATION_TIME)
+                        new Date(
+                                System.currentTimeMillis()
+                                        + EXPIRATION_TIME
+                        )
                 )
-                .signWith(KEY, SignatureAlgorithm.HS256)
+                .signWith(
+                        KEY,
+                        SignatureAlgorithm.HS256
+                )
                 .compact();
     }
 
-    public String extractSessionId(String token) {
+    public String extractSessionId(
+            String token) {
 
-        Claims claims = extractAllClaims(token);
+        Claims claims =
+                extractAllClaims(token);
 
         return claims.getSubject();
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(
+            String token) {
 
         try {
 
             extractAllClaims(token);
 
-            return true;
+            return !isTokenExpired(token);
 
         } catch (Exception e) {
 
@@ -55,19 +67,24 @@ public class JwtUtil {
         }
     }
 
-    public Date extractExpiration(String token) {
+    public Date extractExpiration(
+            String token) {
 
-        Claims claims = extractAllClaims(token);
+        Claims claims =
+                extractAllClaims(token);
 
         return claims.getExpiration();
     }
 
-    public boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(
+            String token) {
 
-        return extractExpiration(token).before(new Date());
+        return extractExpiration(token)
+                .before(new Date());
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(
+            String token) {
 
         return Jwts.parserBuilder()
                 .setSigningKey(KEY)

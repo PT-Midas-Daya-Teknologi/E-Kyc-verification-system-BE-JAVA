@@ -2,11 +2,12 @@ package com.kyc.kyc_verification_system.controller;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +18,6 @@ import com.kyc.kyc_verification_system.dto.DocUploadResponse;
 import com.kyc.kyc_verification_system.dto.ErrorResponse;
 import com.kyc.kyc_verification_system.dto.InitiateResponse;
 import com.kyc.kyc_verification_system.service.KycService;
-import com.kyc.kyc_verification_system.util.JwtUtil;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -26,14 +26,9 @@ public class KycController {
 
     private final KycService kycService;
 
-    private final JwtUtil jwtUtil;
-
-    public KycController(
-            KycService kycService,
-            JwtUtil jwtUtil) {
+    public KycController(KycService kycService) {
 
         this.kycService = kycService;
-        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/initiate")
@@ -58,10 +53,8 @@ public class KycController {
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDocument(
 
-            @RequestHeader(
-                    value = "Authorization",
-                    required = false)
-            String authToken,
+            @RequestAttribute("sessionId")
+            String sessionIdString,
 
             @RequestParam(
                     value = "file",
@@ -75,29 +68,8 @@ public class KycController {
 
         try {
 
-            if (authToken == null
-                    || authToken.isBlank()
-                    || !authToken.startsWith("Bearer ")) {
-
-                return unauthorizedResponse(
-                        "MISSING_TOKEN",
-                        "Authorization token is missing"
-                );
-            }
-
-            String token =
-                    authToken.substring(7);
-
-            if (!jwtUtil.validateToken(token)) {
-
-                return unauthorizedResponse(
-                        "INVALID_TOKEN",
-                        "Invalid or expired token"
-                );
-            }
-
-            String sessionId =
-                    jwtUtil.extractSessionId(token);
+            UUID sessionId =
+                    UUID.fromString(sessionIdString);
 
             DocUploadResponse uploadResponse =
                     kycService.uploadDocument(
@@ -156,29 +128,5 @@ public class KycController {
             return ResponseEntity.internalServerError()
                     .body(errorResponse);
         }
-    }
-
-    private ResponseEntity<CommonResponse<Object>> unauthorizedResponse(
-
-            String code,
-            String message) {
-
-        ErrorResponse error =
-                ErrorResponse.builder()
-                        .code(code)
-                        .status(401)
-                        .message(message)
-                        .build();
-
-        CommonResponse<Object> errorResponse =
-                CommonResponse.builder()
-                        .success(false)
-                        .timestamp(LocalDateTime.now().toString())
-                        .errors(Collections.singletonList(error))
-                        .body(null)
-                        .build();
-
-        return ResponseEntity.status(401)
-                .body(errorResponse);
     }
 }
