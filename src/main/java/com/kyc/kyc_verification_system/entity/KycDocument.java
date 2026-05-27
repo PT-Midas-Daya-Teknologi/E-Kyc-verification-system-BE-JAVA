@@ -27,16 +27,19 @@ public class KycDocument {
     private String fileName;
 
     private String fileType;
-    
+
     private String username;
-    
+
     @Column(columnDefinition = "TEXT")
     private String fileData;
+
+    @Column(columnDefinition = "TEXT")
+    private String ocrResponse;
 
     private String status;
 
     private LocalDateTime createdAt;
-    
+
     private String createdBy;
 
     private LocalDateTime updatedAt;
