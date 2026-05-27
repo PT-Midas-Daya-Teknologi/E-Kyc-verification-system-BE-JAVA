@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.kyc.kyc_verification_system.dto.CommonResponse;
+import com.kyc.kyc_verification_system.dto.DocUploadRequest;
 import com.kyc.kyc_verification_system.dto.DocUploadResponse;
 import com.kyc.kyc_verification_system.dto.ErrorResponse;
 import com.kyc.kyc_verification_system.dto.InitiateResponse;
 import com.kyc.kyc_verification_system.service.KycService;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/kyc")
+@CrossOrigin(origins = "http://localhost:3000")
 public class KycController {
 
     private final KycService kycService;
@@ -33,8 +33,7 @@ public class KycController {
 
     @PostMapping("/initiate")
     public ResponseEntity<CommonResponse<InitiateResponse>> initiateKyc(
-
-            @RequestParam String username) {
+            String username) {
 
         InitiateResponse initiateResponse =
                 kycService.initiateKyc(username);
@@ -56,15 +55,8 @@ public class KycController {
             @RequestAttribute("sessionId")
             String sessionIdString,
 
-            @RequestParam(
-                    value = "file",
-                    required = false)
-            MultipartFile file,
-
-            @RequestParam(
-                    value = "documentType",
-                    required = false)
-            String documentType) {
+            @ModelAttribute
+            DocUploadRequest request) {
 
         try {
 
@@ -74,8 +66,8 @@ public class KycController {
             DocUploadResponse uploadResponse =
                     kycService.uploadDocument(
                             sessionId,
-                            file,
-                            documentType
+                            request.getFile(),
+                            request.getDocumentType()
                     );
 
             CommonResponse<DocUploadResponse> response =
