@@ -2,7 +2,6 @@ package com.kyc.kyc_verification_system.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -21,7 +20,7 @@ public class AppConfig {
                         .build();
 
         return WebClient.builder()
-                .baseUrl("http://localhost:5000")
+                .baseUrl("http://localhost:8000")
                 .exchangeStrategies(exchangeStrategies)
                 .build();
     }
