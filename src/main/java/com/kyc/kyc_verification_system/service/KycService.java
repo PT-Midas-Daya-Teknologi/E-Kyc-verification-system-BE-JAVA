@@ -1,13 +1,15 @@
 package com.kyc.kyc_verification_system.service;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
-
+import com.kyc.kyc_verification_system.dto.DocUploadResponse;
+import com.kyc.kyc_verification_system.dto.InitiateResponse;
+import com.kyc.kyc_verification_system.entity.User;
+import com.kyc.kyc_verification_system.entity.UserDocument;
+import com.kyc.kyc_verification_system.entity.UserSession;
+import com.kyc.kyc_verification_system.repository.UserDocumentRepository;
+import com.kyc.kyc_verification_system.repository.UserRepository;
+import com.kyc.kyc_verification_system.repository.UserSessionRepository;
+import com.kyc.kyc_verification_system.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -16,18 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.kyc.kyc_verification_system.dto.DocUploadResponse;
-import com.kyc.kyc_verification_system.dto.InitiateResponse;
-
-import com.kyc.kyc_verification_system.entity.User;
-import com.kyc.kyc_verification_system.entity.UserDocument;
-import com.kyc.kyc_verification_system.entity.UserSession;
-
-import com.kyc.kyc_verification_system.repository.UserDocumentRepository;
-import com.kyc.kyc_verification_system.repository.UserRepository;
-import com.kyc.kyc_verification_system.repository.UserSessionRepository;
-
-import com.kyc.kyc_verification_system.util.JwtUtil;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -147,30 +142,23 @@ public class KycService {
             );
         }
 
-        String base64File =
-                Base64.getEncoder()
-                        .encodeToString(file.getBytes());
+        Optional<UserDocument> userDocumentOptional = userDocumentRepository.findBySessionId(sessionId);
 
-        UserDocument document =
-                new UserDocument();
+        UserDocument userDocument = null;
 
-        document.setSessionId(sessionId.toString());
+        userDocument = userDocumentOptional.orElseGet(() -> UserDocument
+                .builder()
+                .sessionId(sessionId)
+                .type(documentType)
+                .ocrData(ocrResponse)
+                .createdAt(LocalDateTime.now())
+                .createdBy("SYSTEM")
+                .updatedAt(LocalDateTime.now())
+                .updatedBy("SYSTEM")
+                .build());
 
-        document.setType(documentType);
-
-        document.setContent(base64File);
-
-        document.setOcrData(ocrResponse);
-
-        document.setCreatedAt(LocalDateTime.now());
-
-        document.setCreatedBy("SYSTEM");
-
-        document.setUpdatedAt(LocalDateTime.now());
-
-        document.setUpdatedBy("SYSTEM");
-
-        userDocumentRepository.save(document);
+        userDocument.setContent(file.getBytes());
+        userDocumentRepository.save(userDocument);
 
         return DocUploadResponse.builder()
                 .documentType(documentType)

@@ -5,9 +5,9 @@
 CREATE TABLE IF NOT EXISTS public.user_document
 (
     id uuid primary key default gen_random_uuid(),
-    content oid,
+    content bytea not null,
     ocr_data json,
-    session_id character varying(255) COLLATE pg_catalog."default",
+    session_id uuid,
     type character varying(255) COLLATE pg_catalog."default"
 )
 

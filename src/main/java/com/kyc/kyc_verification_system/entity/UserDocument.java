@@ -1,18 +1,30 @@
 package com.kyc.kyc_verification_system.entity;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import jakarta.persistence.*;
+import java.sql.Types;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
-import lombok.Data;
-
+@Getter
+@Setter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "user_document")
-@Data
 public class UserDocument {
 
     @Id
@@ -20,14 +32,14 @@ public class UserDocument {
     private UUID id;
 
     @Column(name = "session_id")
-    private String sessionId;
+    private UUID sessionId;
 
     @Column(name = "type")
     private String type;
 
-    @Lob
-    @Column(name = "content", columnDefinition = "TEXT")
-    private String content;
+    @JdbcTypeCode(Types.BINARY)
+    @Column(name = "content")
+    private byte[] content;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "ocr_data")
