@@ -48,7 +48,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
-                                "/kyc/initiate"
+                                "/kyc/initiate",
+                                "/api/liveness/**"
+
                         ).permitAll()
 
                         .anyRequest().authenticated()

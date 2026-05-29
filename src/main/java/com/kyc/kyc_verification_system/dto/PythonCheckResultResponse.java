@@ -1,4 +1,4 @@
-package com.kyc.liveness.dto;
+package com.kyc.kyc_verification_system.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

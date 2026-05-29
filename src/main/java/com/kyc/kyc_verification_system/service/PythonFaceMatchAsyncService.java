@@ -1,10 +1,11 @@
-package com.kyc.liveness.service;
+package com.kyc.kyc_verification_system.service;
 
-import com.kyc.liveness.dto.PythonCheckResultResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import com.kyc.kyc_verification_system.dto.PythonCheckResultResponse;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;

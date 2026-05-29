@@ -43,7 +43,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extractSessionId(
+    public static  String extractSessionId(
             String token) {
 
         Claims claims =
@@ -83,7 +83,7 @@ public class JwtUtil {
                 .before(new Date());
     }
 
-    private Claims extractAllClaims(
+    private static Claims extractAllClaims(
             String token) {
 
         return Jwts.parserBuilder()

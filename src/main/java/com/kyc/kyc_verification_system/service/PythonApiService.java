@@ -1,6 +1,5 @@
-package com.kyc.liveness.service;
+package com.kyc.kyc_verification_system.service;
 
-import com.kyc.liveness.dto.PythonCheckResultResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,9 +16,9 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-/**
- * Calls the Python FastAPI /check_result endpoint for face-match verification.
- */
+import com.kyc.kyc_verification_system.dto.PythonCheckResultResponse;
+
+
 @Service
 public class PythonApiService {
 
@@ -41,8 +40,8 @@ public class PythonApiService {
     public PythonCheckResultResponse fetchCheckResult(String sessionId) {
         try {
             String url = UriComponentsBuilder
-                    .fromHttpUrl(pythonApiBaseUrl)
-                    .path("/check_result")
+            		.fromHttpUrl(pythonApiBaseUrl)
+            		.path("/check_result")
                     .queryParam("session_id", sessionId)
                     .toUriString();
 

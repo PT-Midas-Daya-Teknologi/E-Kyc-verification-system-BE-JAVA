@@ -1,4 +1,4 @@
-package com.kyc.liveness.entity;
+package com.kyc.kyc_verification_system.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -20,7 +20,6 @@ public class LivenessResult {
 
 	    private LocalDateTime createdAt = LocalDateTime.now();
 
-	    // Getters and Setters
 
 	    public Long getId() {
 	        return id;
