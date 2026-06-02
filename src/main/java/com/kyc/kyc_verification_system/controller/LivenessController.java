@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import java.util.UUID;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,10 +63,12 @@ public class LivenessController {
     }
 
    
-    @GetMapping("/result/{sessionId}")
-    public ResponseEntity<LivenessResultResponse> getResult(@PathVariable String sessionId) {
-        log.info("Request: GET /result/{}", sessionId);
-        return ResponseEntity.ok(livenessService.getResult(sessionId));
+    @GetMapping("/result/{awsSessionId}")
+    public ResponseEntity<LivenessResultResponse> getResult(
+            @PathVariable String awsSessionId,
+            @RequestParam("kycSessionId") UUID kycSessionId) {
+        log.info("Request: GET /result/{}?kycSessionId={}", awsSessionId, kycSessionId);
+        return ResponseEntity.ok(livenessService.getResult(awsSessionId, kycSessionId));
     }
 
     

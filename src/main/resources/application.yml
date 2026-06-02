@@ -4,7 +4,7 @@ server:
       max-file-size: 1MB
       max-request-size: 2MB
     context-path: /openapi/dev
-  port: 8080
+  port: 8098
 
 spring:
   application:
@@ -18,7 +18,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: postgres
+    password: root
     schema: public
     driver-class-name: org.postgresql.Driver
     type: org.apache.tomcat.jdbc.pool.DataSource
@@ -39,6 +39,8 @@ spring:
   jpa:
     timeout-sec: 30
     generate-ddl: false
+  flyway:
+    baseline-on-migrate: true
 #  jackson:
 #    serialization:
 #      write-dates-as-timestamps: false
@@ -103,3 +105,12 @@ aws:
 liveness:
   confidence:
     threshold: 80
+
+python:
+  api:
+    base-url: http://localhost:8000
+    connect-timeout-ms: 10000
+    get-read-timeout-ms: 15000
+    post-read-timeout-ms: 300000
+    poll-interval-ms: 2500
+    poll-max-wait-ms: 300000

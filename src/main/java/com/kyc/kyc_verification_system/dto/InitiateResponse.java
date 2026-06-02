@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class InitiateResponse {
 
+    private String sessionId;
 
 	private String expiresAt;
 	

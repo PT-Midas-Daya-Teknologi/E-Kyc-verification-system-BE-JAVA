@@ -24,26 +24,57 @@ public class PythonFaceMatchAsyncService {
 
     @Async
     public void runFaceMatch(
-            String sessionId,
+            String cacheKey,
+            String kycSessionId,
             byte[] auditImageBytes,
+            int attemptNo,
             Consumer<PythonCheckResultResponse> onSuccess) {
 
-        if (started.putIfAbsent(sessionId, Boolean.TRUE) != null) {
+        if (started.putIfAbsent(cacheKey, Boolean.TRUE) != null) {
             return;
         }
 
         try {
             PythonCheckResultResponse posted =
-                    pythonApiService.postCheckResult(sessionId, auditImageBytes);
+                    pythonApiService.postCheckResult(kycSessionId, auditImageBytes, attemptNo);
 
-            if (posted != null
-                    && posted.getFinalResult() != null
-                    && !"PENDING".equalsIgnoreCase(posted.getFinalResult())) {
+            if (isResolvedResult(posted)) {
                 onSuccess.accept(posted);
-                log.info("Async Python face match completed for session {}", sessionId);
+                log.info("Async Python face match completed for KYC session {}", kycSessionId);
+                return;
             }
+
+            PythonCheckResultResponse fromGet = pythonApiService.fetchCheckResult(kycSessionId);
+            if (isResolvedResult(fromGet)) {
+                onSuccess.accept(fromGet);
+                log.info("Async Python face match resolved via GET for KYC session {}", kycSessionId);
+                return;
+            }
+
+            log.warn(
+                    "Python face match returned no final result for KYC session {} — caching rejection",
+                    kycSessionId);
+            onSuccess.accept(buildRejectedFallback(kycSessionId, attemptNo));
         } catch (Exception ex) {
-            log.warn("Async Python face match failed for session {}: {}", sessionId, ex.getMessage());
+            log.warn("Async Python face match failed for KYC session {}: {}", kycSessionId, ex.getMessage());
+            onSuccess.accept(buildRejectedFallback(kycSessionId, attemptNo));
         }
+    }
+
+    private boolean isResolvedResult(PythonCheckResultResponse result) {
+        return result != null
+                && result.getFinalResult() != null
+                && !"PENDING".equalsIgnoreCase(result.getFinalResult());
+    }
+
+    private PythonCheckResultResponse buildRejectedFallback(String kycSessionId, int attemptNo) {
+        PythonCheckResultResponse fallback = new PythonCheckResultResponse();
+        fallback.setSessionId(kycSessionId);
+        fallback.setAttemptNo(attemptNo);
+        fallback.setConfidence(0.0);
+        fallback.setVerified(false);
+        fallback.setFaceScore("0.0");
+        fallback.setFinalResult("REJECTED");
+        return fallback;
     }
 }

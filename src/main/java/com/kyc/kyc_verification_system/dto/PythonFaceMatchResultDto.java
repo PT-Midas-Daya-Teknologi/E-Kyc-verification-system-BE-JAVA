@@ -1,16 +1,16 @@
 package com.kyc.kyc_verification_system.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class PythonCheckResultResponse {
+public class PythonFaceMatchResultDto {
 
     @JsonProperty("session_id")
     private String sessionId;
