@@ -150,6 +150,7 @@ public class KycService {
         userDocument = userDocumentOptional.orElseGet(() -> UserDocument
                 .builder()
                 .sessionId(sessionId)
+                .name(fileName)
                 .type(documentType)
                 .ocrData(ocrResponse)
                 .createdAt(LocalDateTime.now())
