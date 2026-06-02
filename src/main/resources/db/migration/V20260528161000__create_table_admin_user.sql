@@ -10,7 +10,6 @@ create table if not exists public.admin_user (
     is_active boolean not null default false
 );
 
-insert into admin_user
-(name, email, password )
-values
-('admin', 'admin@admin.com', '$2a$12$8S7xdMZPmw5g0oMs5Q6r5O9IAB0L/QoJLXwF1lUQmBdCzvB5zQrjy');
+insert into admin_user (name, email, password)
+values ('admin', 'admin@admin.com', '$2a$12$8S7xdMZPmw5g0oMs5Q6r5O9IAB0L/QoJLXwF1lUQmBdCzvB5zQrjy')
+on conflict (email) do nothing;

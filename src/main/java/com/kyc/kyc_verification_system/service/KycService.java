@@ -76,6 +76,7 @@ public class KycService {
                 jwtUtil.generateToken(sessionId.toString());
 
         return InitiateResponse.builder()
+                .sessionId(sessionId.toString())
                 .token(token)
                 .expiresAt(expiresAt.toString())
                 .build();
