@@ -60,7 +60,7 @@ public class KycService {
 
         session.setUserId(user.getId());
 
-        session.setDocumentId(null);
+        session.setUserDocument(null);
 
         session.setVideoId(null);
 
@@ -150,6 +150,7 @@ public class KycService {
         userDocument = userDocumentOptional.orElseGet(() -> UserDocument
                 .builder()
                 .sessionId(sessionId)
+                .name(fileName)
                 .type(documentType)
                 .ocrData(ocrResponse)
                 .createdAt(LocalDateTime.now())

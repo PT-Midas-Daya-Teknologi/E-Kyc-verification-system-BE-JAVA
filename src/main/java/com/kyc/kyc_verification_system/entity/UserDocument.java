@@ -34,6 +34,9 @@ public class UserDocument {
     @Column(name = "session_id")
     private UUID sessionId;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "type")
     private String type;
 
