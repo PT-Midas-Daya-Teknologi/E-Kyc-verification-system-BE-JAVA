@@ -63,7 +63,7 @@ public class KycService {
         session.setUserId(user.getId());
 
         session.setUserDocument(null);
-        
+
         session.setVideoId(null);
 
         session.setAttempts("[]");
@@ -163,20 +163,18 @@ public class KycService {
 
         userDocument.setContent(file.getBytes());
         userDocumentRepository.save(userDocument);
-        
-        
+
         UserSession session = userSessionRepository
                 .findById(sessionId)
                 .orElseThrow(() ->
                         new ResponseStatusException(
                                 HttpStatus.NOT_FOUND,
-                                "Session not found"
+                                "Sessio not found"
                         ));
-
+        
         session.setUserDocument(userDocument);
 
         userSessionRepository.save(session);
-        
 
         return DocUploadResponse.builder()
                 .documentType(documentType)
