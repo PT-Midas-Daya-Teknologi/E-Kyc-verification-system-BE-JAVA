@@ -166,7 +166,7 @@ public class KycService {
 
         UserSession session = userSessionRepository
                 .findById(sessionId)
-                .orElseThrow(() -> 
+                .orElseThrow(() ->
                         new ResponseStatusException(
                                 HttpStatus.NOT_FOUND,
                                 "Sessio not found"
@@ -174,7 +174,7 @@ public class KycService {
         
         session.setUserDocument(userDocument);
 
-        userRepository.save(session);
+        userSessionRepository.save(session);
 
         return DocUploadResponse.builder()
                 .documentType(documentType)
