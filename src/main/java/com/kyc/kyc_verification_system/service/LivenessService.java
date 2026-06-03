@@ -252,19 +252,20 @@ public class LivenessService {
                 log.warn(
                         "No audit image for AWS session {} — cannot run face match",
                         awsSessionId);
-                return finalizeAwsSuccess(
-                        kycSessionId,
-                        awsSessionId,
-                        awsResult,
-                        awsStatus,
-                        confidence,
-                        isLive,
-                        buildRejectedPythonResult(kycSessionId, nextAttemptNo),
-                        nextAttemptNo);
+            } else {
+                log.warn(
+                        "Python face match returned no result for AWS session {} — treating as rejected",
+                        awsSessionId);
             }
-
-            return buildPythonPendingResponse(
-                    awsSessionId, kycSessionId, awsResult, awsStatus, confidence, isLive);
+            return finalizeAwsSuccess(
+                    kycSessionId,
+                    awsSessionId,
+                    awsResult,
+                    awsStatus,
+                    confidence,
+                    isLive,
+                    buildRejectedPythonResult(kycSessionId, nextAttemptNo),
+                    nextAttemptNo);
         }
 
         return finalizeAwsSuccess(
@@ -422,31 +423,6 @@ public class LivenessService {
 
     private String pythonCacheKey(UUID kycSessionId, String awsSessionId) {
         return kycSessionId + ":" + awsSessionId;
-    }
-
-    private LivenessResultResponse buildPythonPendingResponse(
-            String awsSessionId,
-            UUID kycSessionId,
-            AwsLivenessResultDto awsResult,
-            String awsStatus,
-            double confidence,
-            boolean isLive) {
-
-        return LivenessResultResponse.builder()
-                .sessionId(awsSessionId)
-                .overallStatus(LivenessResponseMapper.OVERALL_IN_PROGRESS)
-                .attemptCount(userSessionAttemptService.getAttemptCount(kycSessionId))
-                .maxAttempts(MAX_ATTEMPTS)
-                .awsResponse(awsResult)
-                .pythonResponse(null)
-                .status(awsStatus)
-                .confidence(confidence)
-                .isLive(isLive)
-                .message("Face match verification in progress.")
-                .livenessStatus(formatLivenessStatus(awsStatus, confidence, isLive))
-                .faceScore("N/A")
-                .finalResult("PENDING")
-                .build();
     }
 
     private LivenessResultResponse buildInProgressResponse(

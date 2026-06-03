@@ -3,13 +3,10 @@ package com.kyc.kyc_verification_system.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -24,11 +21,7 @@ public class UserSession {
 
     private Long  userId;
 
-    //private UUID documentId;
-    
-    @OneToOne()
-    @JoinColumn(name = "document_id")
-    private UserDocument userDocument;
+    private UUID documentId;
 
     private UUID videoId;
 

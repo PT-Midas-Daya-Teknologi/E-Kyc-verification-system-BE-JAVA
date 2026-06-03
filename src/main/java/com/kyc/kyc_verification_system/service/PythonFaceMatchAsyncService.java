@@ -44,13 +44,6 @@ public class PythonFaceMatchAsyncService {
                 return;
             }
 
-            PythonCheckResultResponse fromGet = pythonApiService.fetchCheckResult(kycSessionId);
-            if (isResolvedResult(fromGet)) {
-                onSuccess.accept(fromGet);
-                log.info("Async Python face match resolved via GET for KYC session {}", kycSessionId);
-                return;
-            }
-
             log.warn(
                     "Python face match returned no final result for KYC session {} — caching rejection",
                     kycSessionId);
