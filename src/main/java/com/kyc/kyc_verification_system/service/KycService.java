@@ -60,8 +60,8 @@ public class KycService {
 
         session.setUserId(user.getId());
 
-        session.setDocumentId(null);
-
+        session.setUserDocument(null);
+        
         session.setVideoId(null);
 
         session.setAttempts("[]");

@@ -16,4 +16,4 @@ TABLESPACE pg_default;
 INSERT INTO users (id, name, username) VALUES
 (1, 'Aishwarya Naik', 'aishwarya'),
 (2, 'Devdutt Padikkal', 'devdutt'),
-(3, 'Virat Kohli', 'virat');
+(3, 'Virat Kohli', 'virat') on conflict(id) do nothing;
