@@ -169,7 +169,7 @@ public class KycService {
                 .orElseThrow(() ->
                         new ResponseStatusException(
                                 HttpStatus.NOT_FOUND,
-                                "Sessio not found"
+                                "Session not found"
                         ));
         
         session.setUserDocument(userDocument);
