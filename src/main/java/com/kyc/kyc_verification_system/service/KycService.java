@@ -11,12 +11,14 @@ import com.kyc.kyc_verification_system.repository.UserSessionRepository;
 import com.kyc.kyc_verification_system.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -60,8 +62,8 @@ public class KycService {
 
         session.setUserId(user.getId());
 
-        session.setDocumentId(null);
-
+        session.setUserDocument(null);
+        
         session.setVideoId(null);
 
         session.setAttempts("[]");
@@ -161,6 +163,20 @@ public class KycService {
 
         userDocument.setContent(file.getBytes());
         userDocumentRepository.save(userDocument);
+        
+        
+        UserSession session = userSessionRepository
+                .findById(sessionId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Session not found"
+                        ));
+
+        session.setUserDocument(userDocument);
+
+        userSessionRepository.save(session);
+        
 
         return DocUploadResponse.builder()
                 .documentType(documentType)
