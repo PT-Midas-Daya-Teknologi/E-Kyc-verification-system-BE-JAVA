@@ -1,14 +1,12 @@
 package com.kyc.kyc_verification_system.util;
 
-import java.security.Key;
-import java.util.Date;
-
-import org.springframework.stereotype.Component;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.util.Date;
 
 @Component
 public class JwtUtil {
@@ -16,7 +14,7 @@ public class JwtUtil {
     private static final String SECRET_KEY =
             "mysecretkeymysecretkeymysecretkey12";
 
-    private static final Key KEY =
+    private static final SecretKey KEY =
             Keys.hmacShaKeyFor(
                     SECRET_KEY.getBytes()
             );
@@ -28,17 +26,16 @@ public class JwtUtil {
             String sessionId) {
 
         return Jwts.builder()
-                .setSubject(sessionId)
-                .setIssuedAt(new Date())
-                .setExpiration(
+                .subject(sessionId)
+                .issuedAt(new Date())
+                .expiration(
                         new Date(
                                 System.currentTimeMillis()
                                         + EXPIRATION_TIME
                         )
                 )
                 .signWith(
-                        KEY,
-                        SignatureAlgorithm.HS256
+                        KEY
                 )
                 .compact();
     }
@@ -86,10 +83,11 @@ public class JwtUtil {
     private static Claims extractAllClaims(
             String token) {
 
-        return Jwts.parserBuilder()
-                .setSigningKey(KEY)
+        return Jwts
+                .parser()
+                .verifyWith(KEY)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
