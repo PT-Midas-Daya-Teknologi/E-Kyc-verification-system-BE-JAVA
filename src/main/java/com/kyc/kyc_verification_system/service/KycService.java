@@ -10,6 +10,7 @@ import com.kyc.kyc_verification_system.repository.UserRepository;
 import com.kyc.kyc_verification_system.repository.UserSessionRepository;
 import com.kyc.kyc_verification_system.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KycService {
@@ -38,7 +40,7 @@ public class KycService {
 
     private final UserSessionRepository userSessionRepository;
 
-    private final WebClient webClient;
+    private final WebClient pythonPostWebClient;
 
     public InitiateResponse initiateKyc(String username) {
 
@@ -124,7 +126,7 @@ public class KycService {
 
         try {
 
-            ocrResponse = webClient.post()
+            ocrResponse = pythonPostWebClient.post()
                     .uri("/ocr_analysis")
                     .contentType(
                             MediaType.MULTIPART_FORM_DATA
@@ -139,7 +141,7 @@ public class KycService {
                     .block();
 
         } catch (Exception e) {
-
+            log.error("Exception while calling ocr_analysis API: ", e);
             throw new RuntimeException(
                     "OCR analysis failed"
             );
