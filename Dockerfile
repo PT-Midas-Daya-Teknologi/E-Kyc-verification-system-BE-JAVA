@@ -20,6 +20,8 @@ COPY --from=builder extracted/snapshot-dependencies/ ./
 
 COPY --from=builder extracted/application/ ./
 
+COPY .env ./
+
 EXPOSE 8080
 
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
