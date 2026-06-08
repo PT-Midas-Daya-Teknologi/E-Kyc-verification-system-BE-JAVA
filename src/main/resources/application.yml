@@ -15,10 +15,11 @@ spring:
   config:
 #    activate.on-profile: kyc-verification-system
     name: kyc-verification-system-YAML
+    import: "optional:file:.env[.properties]"
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: root
+    password: postgres
     schema: public
     driver-class-name: org.postgresql.Driver
     type: org.apache.tomcat.jdbc.pool.DataSource
@@ -98,9 +99,9 @@ resilience4j:
         automaticTransitionFromOpenToHalfOpenEnabled: true
 
 aws:
-  region: ap-south-1
-  accessKeyId: AKIAR6HY5FFACIMOLTO7
-  secretAccessKey: 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
+  region: ${AWS_REGION}
+  accessKeyId: ${AWS_ACCESS_KEY_ID}
+  secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
 
 liveness:
   confidence:
