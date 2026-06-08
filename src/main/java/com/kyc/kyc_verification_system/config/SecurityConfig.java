@@ -50,8 +50,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/kyc/initiate",
                                 "/api/liveness/**",
-                                "/actuator/health"
-
+                                "/actuator/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
 
                         .anyRequest().authenticated()
