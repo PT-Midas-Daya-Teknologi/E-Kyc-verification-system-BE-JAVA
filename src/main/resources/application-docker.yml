@@ -108,7 +108,7 @@ liveness:
 
 python:
   api:
-    base-url: http://python-service:8000
+    base-url: http://python-service:80
     connect-timeout-ms: 10000
     get-read-timeout-ms: 15000
     post-read-timeout-ms: 300000

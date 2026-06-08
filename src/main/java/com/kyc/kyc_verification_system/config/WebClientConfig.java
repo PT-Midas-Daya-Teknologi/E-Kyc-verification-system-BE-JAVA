@@ -1,29 +1,28 @@
 package com.kyc.kyc_verification_system.config;
 
-import java.time.Duration;
-
+import io.netty.channel.ChannelOption;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import io.netty.channel.ChannelOption;
 import reactor.netty.http.client.HttpClient;
+
+import java.time.Duration;
 
 @Configuration
 public class WebClientConfig {
 
-    @Value("${python.api.base-url:http://localhost:8000}")
+    @Value("${python.api.base-url}")
     private String pythonApiBaseUrl;
 
-    @Value("${python.api.connect-timeout-ms:10000}")
+    @Value("${python.api.connect-timeout-ms}")
     private int connectTimeoutMs;
 
-    @Value("${python.api.get-read-timeout-ms:15000}")
+    @Value("${python.api.get-read-timeout-ms}")
     private int getReadTimeoutMs;
 
-    @Value("${python.api.post-read-timeout-ms:300000}")
+    @Value("${python.api.post-read-timeout-ms}")
     private int postReadTimeoutMs;
 
     @Bean(name = "pythonGetWebClient")
