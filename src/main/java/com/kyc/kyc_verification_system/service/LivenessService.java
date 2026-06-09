@@ -51,6 +51,7 @@ public class LivenessService {
     private final UserSessionAttemptService userSessionAttemptService;
     private final LivenessResponseMapper livenessResponseMapper;
     private final ObjectMapper objectMapper;
+    private final PythonApiService pythonApiService;
 
     @Value("${aws.region}")
     private String awsRegion;
@@ -67,13 +68,15 @@ public class LivenessService {
             PythonFaceMatchOrchestrator pythonFaceMatchOrchestrator,
             UserSessionAttemptService userSessionAttemptService,
             LivenessResponseMapper livenessResponseMapper,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            PythonApiService pythonApiService) {
         this.rekognitionClient = rekognitionClient;
         this.stsClient = stsClient;
         this.pythonFaceMatchOrchestrator = pythonFaceMatchOrchestrator;
         this.userSessionAttemptService = userSessionAttemptService;
         this.livenessResponseMapper = livenessResponseMapper;
         this.objectMapper = objectMapper;
+        this.pythonApiService = pythonApiService;
     }
 
     public CredentialsResponse getTemporaryCredentials() {
@@ -532,6 +535,88 @@ public class LivenessService {
         } catch (IOException ex) {
             log.error("Failed to save video for session {}: {}", sessionId, ex.getMessage());
             throw new LivenessException("Failed to save verification video.", ex);
+        }
+    }
+
+    public LivenessUploadResponse processSnapshot(
+            MultipartFile snapshot,
+            String sessionId,
+            String kycSessionId,
+            String timestamp) {
+        try {
+            log.info("🔷 processSnapshot START ——————————————————————————————————");
+            log.info("  📥 Received snapshot upload request");
+            log.info("     • sessionId: {}", sessionId);
+            log.info("     • kycSessionId: {}", kycSessionId);
+            log.info("     • snapshotSize: {} bytes", snapshot.getSize());
+            log.info("     • contentType: {}", snapshot.getContentType());
+            log.info("     • timestamp: {}", timestamp);
+
+            // Save snapshot locally
+            Path uploadPath = Paths.get(uploadDirectory);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+                log.info("  📁 Created upload directory: {}", uploadPath);
+            }
+
+            String filename = "snapshot-" + sessionId + "-" + UUID.randomUUID() + ".jpg";
+            Path filePath = uploadPath.resolve(filename);
+            snapshot.transferTo(filePath.toFile());
+
+            log.info("  💾 Snapshot saved to disk");
+            log.info("     • fileName: {}", filename);
+            log.info("     • filePath: {}", filePath.toAbsolutePath());
+            log.info("     • fileSize: {} bytes", Files.size(filePath));
+
+            // Convert to bytes for Python API
+            byte[] snapshotBytes = snapshot.getBytes();
+            log.info("  🔄 Converted snapshot to byte array: {} bytes", snapshotBytes.length);
+
+            // Forward to Python API for face verification
+            UUID kycSessionUUID = UUID.fromString(kycSessionId);
+            int attemptNo = userSessionAttemptService.getAttemptCount(kycSessionUUID) + 1;
+
+            log.info("  🚀 FORWARDING TO PYTHON API");
+            log.info("     • endpoint: /check_result");
+            log.info("     • sessionId: {}", kycSessionId);
+            log.info("     • attemptNo: {}", attemptNo);
+            log.info("     • imageBytes: {} bytes", snapshotBytes.length);
+
+            PythonCheckResultResponse pythonResponse = pythonApiService.postCheckResult(
+                    kycSessionId,
+                    snapshotBytes,
+                    attemptNo);
+
+            if (pythonResponse != null) {
+                log.info("  ✅ PYTHON API RESPONSE RECEIVED");
+                log.info("     • sessionId: {}", pythonResponse.getSessionId());
+                log.info("     • attemptNo: {}", pythonResponse.getAttemptNo());
+                log.info("     • faceScore: {}", pythonResponse.getFaceScore());
+                log.info("     • confidence: {}", pythonResponse.getConfidence());
+                log.info("     • verified: {}", pythonResponse.getVerified());
+                log.info("     • finalResult: {}", pythonResponse.getFinalResult());
+            } else {
+                log.warn("  ⚠️ NO RESPONSE FROM PYTHON API (null response)");
+            }
+
+            log.info("  ✅ Snapshot processing completed successfully");
+            log.info("🔷 processSnapshot END ——————————————————————————————————");
+
+            return LivenessUploadResponse.builder()
+                    .success(true)
+                    .fileName(filename)
+                    .sessionId(sessionId)
+                    .timestamp(timestamp)
+                    .size(snapshot.getSize())
+                    .message("Snapshot uploaded and processed successfully.")
+                    .build();
+
+        } catch (IOException ex) {
+            log.error("❌ IOException during snapshot processing for session {}: {}", sessionId, ex.getMessage(), ex);
+            throw new LivenessException("Failed to process verification snapshot.", ex);
+        } catch (Exception ex) {
+            log.error("❌ Exception during snapshot processing for session {}: {}", sessionId, ex.getMessage(), ex);
+            throw new LivenessException("Failed to process verification snapshot: " + ex.getMessage(), ex);
         }
     }
 }

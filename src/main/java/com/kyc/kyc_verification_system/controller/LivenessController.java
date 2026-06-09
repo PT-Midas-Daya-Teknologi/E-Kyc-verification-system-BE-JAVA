@@ -81,4 +81,31 @@ public class LivenessController {
         log.info("Request: POST /upload — session: {}, size: {} bytes", sessionId, video.getSize());
         return ResponseEntity.ok(livenessService.saveVideo(video, sessionId, timestamp));
     }
+
+    @PostMapping(value = "/upload-snapshot", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<LivenessUploadResponse> uploadSnapshot(
+            @RequestParam("snapshot") MultipartFile snapshot,
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam("kycSessionId") String kycSessionId,
+            @RequestParam(value = "timestamp", required = false) String timestamp) {
+
+        log.info("═══════════════════════════════════════════════════════════════");
+        log.info("📸 REQUEST: POST /upload-snapshot");
+        log.info("  • sessionId: {}", sessionId);
+        log.info("  • kycSessionId: {}", kycSessionId);
+        log.info("  • snapshotSize: {} bytes", snapshot.getSize());
+        log.info("  • contentType: {}", snapshot.getContentType());
+        log.info("  • timestamp: {}", timestamp);
+        log.info("═══════════════════════════════════════════════════════════════");
+
+        LivenessUploadResponse response = livenessService.processSnapshot(snapshot, sessionId, kycSessionId, timestamp);
+
+        log.info("✅ RESPONSE: POST /upload-snapshot SUCCESS");
+        log.info("  • fileName: {}", response.getFileName());
+        log.info("  • success: {}", response.getSuccess());
+        log.info("  • message: {}", response.getMessage());
+        log.info("═══════════════════════════════════════════════════════════════");
+
+        return ResponseEntity.ok(response);
+    }
 }
