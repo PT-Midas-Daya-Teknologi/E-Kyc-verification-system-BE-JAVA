@@ -4,7 +4,7 @@ server:
       max-file-size: 1MB
       max-request-size: 2MB
     context-path: /openapi/dev
-  port: 8098
+  port: 8080
 
 spring:
   application:
@@ -19,7 +19,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: postgres
+    password: root
     schema: public
     driver-class-name: org.postgresql.Driver
     type: org.apache.tomcat.jdbc.pool.DataSource

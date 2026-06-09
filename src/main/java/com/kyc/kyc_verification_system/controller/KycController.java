@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -33,7 +34,7 @@ public class KycController {
 
     @PostMapping("/initiate")
     public ResponseEntity<CommonResponse<InitiateResponse>> initiateKyc(
-            String username) {
+            @RequestParam String username) {
 
         InitiateResponse initiateResponse =
                 kycService.initiateKyc(username);

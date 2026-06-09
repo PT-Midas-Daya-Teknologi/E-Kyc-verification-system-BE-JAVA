@@ -32,10 +32,18 @@ public class PythonApiService {
 
     public PythonCheckResultResponse postCheckResult(String sessionId, byte[] imageBytes, int attemptNo) {
         if (imageBytes == null || imageBytes.length == 0) {
+            log.warn("🔴 postCheckResult — imageBytes is null or empty for session: {}", sessionId);
             return null;
         }
 
         try {
+            log.info("🟠 postCheckResult REQUEST START ——————————————————————————");
+            log.info("  📤 Sending snapshot to Python API");
+            log.info("     • endpoint: /check_result");
+            log.info("     • sessionId: {}", sessionId);
+            log.info("     • attemptNo: {}", attemptNo);
+            log.info("     • imageSize: {} bytes", imageBytes.length);
+
             MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
             bodyBuilder
                     .part("file", new ByteArrayResource(imageBytes) {
@@ -48,6 +56,9 @@ public class PythonApiService {
             bodyBuilder.part("session_id", sessionId);
             bodyBuilder.part("attempt_no", String.valueOf(attemptNo));
 
+            log.info("  🔄 Built multipart request");
+            log.info("  📤 Posting to Python API...");
+
             Map<String, Object> raw = pythonPostWebClient
                     .post()
                     .uri("/check_result")
@@ -57,23 +68,36 @@ public class PythonApiService {
                     .bodyToMono(MAP_TYPE)
                     .block();
 
+            log.info("  ✅ Python API response received (raw): {}", raw);
+
             PythonCheckResultResponse mapped = mapResponse(raw);
             if (mapped != null) {
-                log.info(
-                        "Python POST /check_result — session: {} | face_score: {} | final_result: {}",
-                        sessionId,
-                        mapped.getFaceScore(),
-                        mapped.getFinalResult());
+                log.info("🟢 postCheckResult RESPONSE SUCCESS ————————————————————————");
+                log.info("  sessionId: {}", mapped.getSessionId());
+                log.info("  attemptNo: {}", mapped.getAttemptNo());
+                log.info("  faceScore: {}", mapped.getFaceScore());
+                log.info("  confidence: {}", mapped.getConfidence());
+                log.info("  verified: {}", mapped.getVerified());
+                log.info("  finalResult: {}", mapped.getFinalResult());
+                log.info("🟢 postCheckResult REQUEST END ————————————————————————");
+            } else {
+                log.warn("🟡 postCheckResult — mapped response is null despite non-null raw response");
             }
             return mapped;
+
         } catch (WebClientResponseException ex) {
-            log.warn(
-                    "Python POST /check_result HTTP {} for session {}: {}",
+            log.error(
+                    "🔴 postCheckResult FAILED — HTTP {} from Python API for session {}: {}",
                     ex.getStatusCode().value(),
                     sessionId,
                     ex.getMessage());
+            log.error("    Response body: {}", ex.getResponseBodyAsString());
         } catch (Exception ex) {
-            log.warn("Python POST /check_result failed for session {}: {}", sessionId, ex.getMessage());
+            log.error(
+                    "🔴 postCheckResult FAILED — Exception for session {}: {}",
+                    sessionId,
+                    ex.getMessage(),
+                    ex);
         }
         return null;
     }
