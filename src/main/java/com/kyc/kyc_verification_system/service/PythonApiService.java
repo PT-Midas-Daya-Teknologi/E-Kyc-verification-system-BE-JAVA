@@ -122,12 +122,34 @@ public class PythonApiService {
         mapped.setConfidence(doubleVal(raw.get("confidence")));
         mapped.setVerified(boolVal(raw.get("verified")));
         mapped.setFaceScore(stringVal(raw.get("face_score")));
-        mapped.setFinalResult(stringVal(raw.get("final_result")));
-
-        if (mapped.getFinalResult() == null) {
-            log.warn("Python response missing final_result: {}", raw);
-            return null;
+        
+        // Get final_result from response
+        String finalResult = stringVal(raw.get("final_result"));
+        
+        // If final_result is missing, derive it from verified status or other fields
+        if (finalResult == null) {
+            log.warn("Python response missing final_result, deriving from verified status");
+            Boolean verified = mapped.getVerified();
+            
+            if (verified != null && verified) {
+                finalResult = "VERIFIED";
+            } else {
+                finalResult = "REJECTED";
+            }
+            log.info("Derived final_result: {}", finalResult);
         }
+        
+        mapped.setFinalResult(finalResult);
+
+        // Final validation: ensure we have a final_result
+        if (mapped.getFinalResult() == null) {
+            log.warn("Python response missing final_result and unable to derive: {}", raw);
+            mapped.setFinalResult("REJECTED");
+        }
+
+        log.debug("Mapped response: sessionId={}, attemptNo={}, confidence={}, verified={}, faceScore={}, finalResult={}",
+                mapped.getSessionId(), mapped.getAttemptNo(), mapped.getConfidence(), 
+                mapped.getVerified(), mapped.getFaceScore(), mapped.getFinalResult());
 
         return mapped;
     }

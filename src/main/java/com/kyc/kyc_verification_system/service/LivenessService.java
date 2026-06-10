@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kyc.kyc_verification_system.dto.AwsLivenessResultDto;
 import com.kyc.kyc_verification_system.dto.CredentialsResponse;
 import com.kyc.kyc_verification_system.dto.LivenessResultResponse;
@@ -23,8 +24,6 @@ import com.kyc.kyc_verification_system.dto.PythonFaceMatchResultDto;
 import com.kyc.kyc_verification_system.dto.SessionResponse;
 import com.kyc.kyc_verification_system.exception.LivenessException;
 import com.kyc.kyc_verification_system.mapper.LivenessResponseMapper;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
@@ -246,6 +245,15 @@ public class LivenessService {
         String cacheKey = pythonCacheKey(kycSessionId, awsSessionId);
         int nextAttemptNo = attemptCount + 1;
         byte[] auditImageBytes = extractAuditImageBytes(awsRawResponse);
+
+        // Save audit image snapshot to disk
+        if (auditImageBytes != null && auditImageBytes.length > 0) {
+            try {
+                saveAuditImageSnapshot(auditImageBytes, awsSessionId);
+            } catch (Exception ex) {
+                log.warn("Failed to save audit image snapshot for session {}: {}", awsSessionId, ex.getMessage());
+            }
+        }
 
         PythonCheckResultResponse pythonRaw = pythonFaceMatchOrchestrator.resolve(
                 kycSessionId, cacheKey, auditImageBytes, nextAttemptNo);
@@ -509,6 +517,23 @@ public class LivenessService {
         return bytes.asByteArray();
     }
 
+    private void saveAuditImageSnapshot(byte[] imageBytes, String sessionId) throws IOException {
+        Path uploadPath = Paths.get(uploadDirectory);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+            log.info("  📁 Created upload directory: {}", uploadPath);
+        }
+
+        String filename = "snapshot-" + sessionId + "-" + UUID.randomUUID() + ".jpg";
+        Path filePath = uploadPath.resolve(filename);
+        Files.write(filePath, imageBytes);
+
+        log.info("  💾 Audit image snapshot saved to disk");
+        log.info("     • fileName: {}", filename);
+        log.info("     • filePath: {}", filePath.toAbsolutePath());
+        log.info("     • fileSize: {} bytes", imageBytes.length);
+    }
+
     public LivenessUploadResponse saveVideo(MultipartFile file, String sessionId, String timestamp) {
         try {
             Path uploadPath = Paths.get(uploadDirectory);
@@ -587,14 +612,32 @@ public class LivenessService {
                     snapshotBytes,
                     attemptNo);
 
+            String finalResult = "REJECTED";
+            Double confidence = 0.0;
+            Boolean verified = false;
+
             if (pythonResponse != null) {
                 log.info("  ✅ PYTHON API RESPONSE RECEIVED");
                 log.info("     • sessionId: {}", pythonResponse.getSessionId());
                 log.info("     • attemptNo: {}", pythonResponse.getAttemptNo());
-                log.info("     • faceScore: {}", pythonResponse.getFaceScore());
                 log.info("     • confidence: {}", pythonResponse.getConfidence());
                 log.info("     • verified: {}", pythonResponse.getVerified());
                 log.info("     • finalResult: {}", pythonResponse.getFinalResult());
+
+                // Extract Python response fields
+                finalResult = pythonResponse.getFinalResult() != null ? pythonResponse.getFinalResult() : "REJECTED";
+                
+                if (pythonResponse.getConfidence() != null) {
+                    confidence = pythonResponse.getConfidence();
+                }
+                if (pythonResponse.getVerified() != null) {
+                    verified = pythonResponse.getVerified();
+                }
+
+                log.info("  📊 EXTRACTED VALUES FOR RESPONSE:");
+                log.info("     • finalResult: {}", finalResult);
+                log.info("     • confidence: {}", confidence);
+                log.info("     • verified: {}", verified);
             } else {
                 log.warn("  ⚠️ NO RESPONSE FROM PYTHON API (null response)");
             }
@@ -609,6 +652,10 @@ public class LivenessService {
                     .timestamp(timestamp)
                     .size(snapshot.getSize())
                     .message("Snapshot uploaded and processed successfully.")
+                    .finalResult(finalResult)
+                    .confidence(confidence)
+                    .verified(verified)
+                    .attemptNo(attemptNo)
                     .build();
 
         } catch (IOException ex) {
