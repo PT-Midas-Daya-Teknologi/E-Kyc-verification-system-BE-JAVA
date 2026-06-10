@@ -49,6 +49,11 @@ public class FaceDetectionController {
         System.out.println("[check_result] response: " + response);
         log.info("[check_result] session={} attempt={} response={}", sessionId, attemptNo, response);
 
+        if (response == null) {
+            log.error("[check_result] FAILED - No response from Python API for session: {}", sessionId);
+            return ResponseEntity.status(500).body(null);
+        }
+
         return ResponseEntity.ok(response);
     }
 
