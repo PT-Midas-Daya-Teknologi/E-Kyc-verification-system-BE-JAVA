@@ -49,11 +49,7 @@ public class KycService {
             throw new RuntimeException("Username is required");
         }
         
-
-//        User user = userRepository.findByUsername(username)
-//                .orElseThrow(() ->
-//                        new RuntimeException("Invalid username"));
-        
+     
         
         User user = userRepository.findByUsername(username)
                 .orElseGet(() -> {
