@@ -49,7 +49,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/kyc/initiate",
-                                "/api/liveness/**",
+//                                "/api/liveness/**",
                                 "/actuator/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
