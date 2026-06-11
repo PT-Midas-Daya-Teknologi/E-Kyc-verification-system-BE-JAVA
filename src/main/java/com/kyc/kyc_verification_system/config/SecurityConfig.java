@@ -49,6 +49,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/kyc/initiate",
+                                
                                 "/actuator/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
