@@ -48,10 +48,26 @@ public class KycService {
 
             throw new RuntimeException("Username is required");
         }
-
+        
+     
+        
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() ->
-                        new RuntimeException("Invalid username"));
+                .orElseGet(() -> {
+
+                    log.info(
+                            "User not found. Creating new user: {}",
+                            username
+                    );
+
+                    User newUser = new User();
+
+                    newUser.setUsername(username.trim());
+
+                    newUser.setName(username.trim());
+
+                    return userRepository.save(newUser);
+                });
+        
 
         UUID sessionId = UUID.randomUUID();
 
